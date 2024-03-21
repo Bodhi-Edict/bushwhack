@@ -43,14 +43,20 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  role          Role      @default(USER)
+  role          Role          @default(USER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  test          Test[]
+  testAttempts  TestAttempt[]
+  explanations  Explanation[]
 }
 
 model VerificationToken {
@@ -64,4 +70,90 @@ model VerificationToken {
 enum Role {
   USER
   ADMIN
+}
+
+model Test {
+  name          String
+  instructions  String
+  AIPrompt      String?
+  maxTimeInMins Int
+  createdBy     User          @relation(fields: [userId], references: [id])
+  questions     Question[]
+  subject       Subject       @relation(fields: [subjectId], references: [id])
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  userId        String
+  subjectId     String
+  testAttempts  TestAttempt[]
+  explanations  Explanation[]
+}
+
+model Question {
+  test         Test?     @relation(fields: [testId], references: [id])
+  correctValue String
+  title        String
+  AIPrompt     String?
+  testId       String?
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  answers      Answer[]
+}
+
+model Subject {
+  name        String
+  iconUrl     String
+  description String
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  tests       Test[]
+}
+
+model TestAttempt {
+  explanations Explanation[]
+  test         Test          @relation(fields: [testId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  progress     Decimal
+  startTime    DateTime
+  endTime      DateTime
+  id           String        @id @default(cuid())
+  testId       String
+  userId       String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+}
+
+model Explanation {
+  user          User        @relation(fields: [userId], references: [id])
+  testAttempt   TestAttempt @relation(fields: [testAttemptId], references: [id])
+  test          Test        @relation(fields: [testId], references: [id])
+  testId        String
+  testAttemptId String
+  id            String      @id @default(cuid())
+  userId        String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+  answers       Answer[]
+}
+
+model Answer {
+  explanation     Explanation @relation(fields: [explanationId], references: [id])
+  question        Question    @relation(fields: [questionId], references: [id])
+  isCorrect       Boolean
+  computedAnswer  String
+  computedWorking String
+  explanationId   String
+  questionId      String
+  value           String
+  id              String      @id @default(cuid())
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
 }
