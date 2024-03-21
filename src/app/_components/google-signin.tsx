@@ -3,7 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
-export const SignInWithGoogle: React.FC = () => {
+export const GoogleSignIn: React.FC = () => {
 
   const searchParams = useSearchParams();
   const error = searchParams.get('error');

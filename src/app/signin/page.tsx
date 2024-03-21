@@ -1,7 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import Image from "next/image";
 import { getServerAuthSession } from "~/server/auth";
-import { SignInWithGoogle } from "../_components/sign-in-with-google";
+import { GoogleSignIn } from "../_components/google-signin";
 import { redirect } from 'next/navigation';
 
 export default async function SignIn({}) {
@@ -38,7 +38,7 @@ export default async function SignIn({}) {
                 </p>
               </div>
               <div className="flex flex-col gap-[24px]">
-                <SignInWithGoogle />
+                <GoogleSignIn />
               </div>
             </div>
             <div className="flex flex-row gap-2 items-start">
