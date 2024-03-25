@@ -20,9 +20,9 @@ Feel free to use this codebase any which way you like. However, this codebase ma
 
 This repository only caontains our consumer facing web application. Currently we're using the OpenAPI and are working towards fine tuning models and assistants to help build the AI buddy. You can find a detailed description of the experiments and approaches we're taking along with the current roadmap. [here](https://github.com/Bodhi-Edict/lastword).
 
-## Some things to keep in mind
+## Things to Improve
 
-- The list of subjects in the home page is generated statically at build time. We don't envision this to change very much and that is the reason for this choice. When a new subject is added or a subject is removed we must rebuild the project.
+- Set up Suspense and fall back loading UI for all the server calls so time to first paint is not too slow
 
 ## Contact
 

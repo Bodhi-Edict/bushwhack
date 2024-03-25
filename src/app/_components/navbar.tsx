@@ -9,9 +9,10 @@ export const Navbar: React.FC = async () => {
     const src = session?.user?.image ?? "";
 
     return (
-      <div className="h-12 navbar pl-2.5 py-2 pr-[18px] flex justify-between items-center  
-        border-t border-solid border-[#333] absolute w-full">
-        <Image src="/logo.png" alt="Logo" width={24} height={24} />
+      <div className="h-12 pl-2.5 py-2 pr-[18px] flex justify-between items-center absolute w-full border-b border-slate-100">
+        <Link href="/">
+          <Image src="/logo.png" alt="Logo" height={32} width={40} />
+        </Link>
         <div className="dropdown ">
           {session?.user && (
             <Link href="/api/auth/signout">
@@ -19,8 +20,8 @@ export const Navbar: React.FC = async () => {
                 <Image className="rounded-full"
                     src={src}
                     alt={name ?? ""}
-                    width={28}
-                    height={28} 
+                    width={32}
+                    height={32} 
                 />
               </div>}
             </Link>

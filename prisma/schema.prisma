@@ -1,16 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
-  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-  // Further reading:
-  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -22,24 +15,16 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? // @db.Text
-  access_token      String? // @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? // @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -49,7 +34,6 @@ model User {
   emailVerified DateTime?
   image         String?
   accounts      Account[]
-  sessions      Session[]
   role          Role          @default(USER)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -57,14 +41,6 @@ model User {
   test          Test[]
   testAttempts  TestAttempt[]
   explanations  Explanation[]
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
 }
 
 enum Role {
@@ -76,7 +52,9 @@ model Test {
   name          String
   instructions  String
   AIPrompt      String?
-  maxTimeInMins Int
+  imageUrl      String
+  maxTimeInMins Int?
+  maxLength     Int?
   createdBy     User          @relation(fields: [userId], references: [id])
   questions     Question[]
   subject       Subject       @relation(fields: [subjectId], references: [id])
@@ -91,20 +69,21 @@ model Test {
 }
 
 model Question {
-  test         Test?     @relation(fields: [testId], references: [id])
-  correctValue String
-  title        String
-  AIPrompt     String?
-  testId       String?
-  id           String    @id @default(cuid())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-  answers      Answer[]
+  test          Test?     @relation(fields: [testId], references: [id])
+  correctValues String[]
+  title         String
+  AIPrompt      String?
+  testId        String?
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+  answers       Answer[]
 }
 
 model Subject {
   name        String
+  slug        String    @unique
   iconUrl     String
   description String
   id          String    @id @default(cuid())

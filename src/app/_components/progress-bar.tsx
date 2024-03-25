@@ -1,0 +1,20 @@
+interface IProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  progress: number,
+  withText?: boolean
+}
+
+export const ProgressBar: React.FC<IProps> = async ({ progress, withText}) => {
+  return (
+    <div className="grid grid-row text-center">
+      <div className="flex w-full mx-auto bg-slate-100 rounded-full h-2 mb-2">
+        <div className="flex flex-col bg-accent-3-500 h-2 rounded-full"
+          style={
+            {
+                'width': `${progress ? (progress * 100).toFixed(0) : '0'}%`
+            }
+          }></div>
+      </div>
+      { withText && <span className="text-xs"> {progress ? (progress * 100).toFixed(0) : '0'}% Progress</span>}
+    </div>
+);
+}

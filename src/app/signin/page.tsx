@@ -1,7 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import Image from "next/image";
 import { getServerAuthSession } from "~/server/auth";
-import { GoogleSignIn } from "../_components/google-signin";
+import { GoogleSignIn } from "./_components/google-signin";
 import { redirect } from 'next/navigation';
 
 export default async function SignIn({}) {
@@ -15,17 +15,6 @@ export default async function SignIn({}) {
   return (
     <>
       <main className="min-h-screen grid grid-cols-3 bg-homepage">
-        <div className="col-span-2 flex flex-col justify-center relative">
-          <div className="w-inherit absolute right-0">
-            <h1 className="text-4xl leading-[48px] font-medium">
-              Learn by teaching <br /> your AI buddy{" "}      
-            </h1>
-            <div className="relative mt-[30px] pt-[54.25%] w-[60vw]">
-              <Image src="/logo.png" alt="login" fill style={{objectFit: "fill", position: "absolute", borderRadius: "12px 0 0 12px"}} />
-            </div>
-          </div>
-        </div>
-
         <div className="col-span-1 py-[80px] px-[70px] border-l
             border-solid shadow-[-12px_0px_16px_0px_rgba(10,10,10,0.1)] z-10">
           <div className="h-[100%] w-[95%] grid grid-cols-1 grid-rows-[1fr_max-content] gap-10 justify-center">

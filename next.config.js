@@ -12,6 +12,10 @@ const config = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'bushwhack-ira-project.s3.ap-south-1.amazonaws.com'
+      }
     ],
   },
 };
