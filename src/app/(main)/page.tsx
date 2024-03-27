@@ -1,14 +1,12 @@
-import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import Image from "next/image";
 import { api } from "~/trpc/server";
 
 export default async function Home() {
-  noStore();
   const subjects = await api.subject.getAll.query();
   return (
     <main>
-      <div className="flex min-h-[calc(100%-12px)] flex-col items-center justify-center p-12">
+      <div className="flex min-h-[calc(100%-48px)] flex-col items-center justify-center p-12">
         <div className="container flex flex-col items-center justify-center gap-12 px-4">
           <div className="text-center">
             <p className="text-4xl mb-2">

@@ -1,11 +1,9 @@
-import { unstable_noStore as noStore } from "next/cache";
 import Image from "next/image";
 import { getServerAuthSession } from "~/server/auth";
 import { GoogleSignIn } from "./_components/google-signin";
 import { redirect } from 'next/navigation';
 
 export default async function SignIn({}) {
-  noStore();
   const session = await getServerAuthSession();
 
   if(session !== null) {

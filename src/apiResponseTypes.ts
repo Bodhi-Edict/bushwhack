@@ -21,3 +21,17 @@ export type SubjectPage = {
       progress: Decimal
   }[]
 };
+
+export type TestPage = {
+  id: string,
+  name: string,
+  instructions: string,
+  imageUrl: string,
+  maxTimeInMins: number | null,
+  maxLength: number | null,
+  questions: {
+    correctValues: string[],
+    title: string,
+    id: string,
+  }[]
+};

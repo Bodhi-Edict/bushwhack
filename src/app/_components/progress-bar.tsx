@@ -1,9 +1,9 @@
-interface IProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface IProps  {
   progress: number,
   withText?: boolean
 }
 
-export const ProgressBar: React.FC<IProps> = async ({ progress, withText}) => {
+export function ProgressBar({ progress, withText }: IProps) {
   return (
     <div className="grid grid-row text-center">
       <div className="flex w-full mx-auto bg-slate-100 rounded-full h-2 mb-2">

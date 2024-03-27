@@ -99,7 +99,7 @@ model TestAttempt {
   user         User          @relation(fields: [userId], references: [id])
   progress     Decimal
   startTime    DateTime
-  endTime      DateTime
+  endTime      DateTime?
   id           String        @id @default(cuid())
   testId       String
   userId       String
