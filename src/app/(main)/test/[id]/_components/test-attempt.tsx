@@ -1,10 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { TestInstructionsModal } from './test-instructions-modal';
-import { type TestPage } from '~/apiResponseTypes';
+import { type TestPage } from '~/types/apiResponse.types';
 import { PrimaryButton } from '~/app/_components/primary-button';
 import { Tooltip } from '~/app/_components/tooltip';
 import { api } from '~/trpc/react';
+import { useSetUnsavedChanges } from '~/app/_components/unsaved-changes-provider';
 
 enum QuestionStatus {
   UNATTEMPTED,
@@ -36,10 +37,15 @@ export function TestAttempt(test: TestPage) {
   const [questionStatus, setQuestionStatus] = useState<QuestionStatus[]>(new Array(test.questions.length).fill(QuestionStatus.UNATTEMPTED));
   const [questionExplanations, setQuestionExplanations] = useState<string[]>(new Array(test.questions.length).fill(''));
 
+  const {
+    setUnsavedChanges,
+  } = useSetUnsavedChanges();
+
   const testAttemptMutation = api.test.createTestAttempt.useMutation({
     onSuccess: (testAttempt) => {
       setTestAttemptId(testAttempt.id);
       setTestStartTime(new Date());
+      setUnsavedChanges();
       setModalOpen(false);
     }
   });

@@ -4,7 +4,7 @@ import {
   publicProcedure,
   protectedProcedure
 } from "~/server/api/trpc";
-import { type TestPage } from "~/apiResponseTypes";
+import { type TestPage } from "~/types/apiResponse.types";
 import { type TestAttempt } from "@prisma/client";
 
 export const testRouter = createTRPCRouter({

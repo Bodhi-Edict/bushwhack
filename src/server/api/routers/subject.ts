@@ -3,7 +3,7 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
-import { type SubjectsPage, type SubjectPage } from "~/apiResponseTypes";
+import { type SubjectsPage, type SubjectPage } from "~/types/apiResponse.types";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export const subjectRouter = createTRPCRouter({
