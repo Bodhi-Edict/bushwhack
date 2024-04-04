@@ -12,11 +12,11 @@ interface IProps  {
 export function QuestionCard({ title, number, status, message }: IProps) {
   return (
     <div className="h-[calc(100%-32px)] w-full my-4 flex flex-col bg-white shadow-md">
-      <div className="text-center w-full p-8 bg-accent-2-200 min-h-32 m-auto max-h-full"> 
+      <div className="text-center w-full p-8 bg-accent-2-200 m-auto min-h-32 max-h-40 overflow-y-scroll"> 
         <span className="font-bold"> Question: {number} </span>
         {title} 
       </div>
-      <div className="text-center w-full p-8 h-3/4">
+      <div className="text-center w-full p-8 h-3/4 overflow-y-scroll">
         {
           status === QuestionStatus.CORRECT &&
           <>
@@ -52,7 +52,7 @@ export function QuestionCard({ title, number, status, message }: IProps) {
           <div>
             <p className="text-lg"> ❗ Error </p>
             <br />
-            <p> {message} </p>
+            <p> {message} Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation. </p>
           </div>
         }
       </div>
