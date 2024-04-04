@@ -52,7 +52,7 @@ export function QuestionCard({ title, number, status, message }: IProps) {
           <div>
             <p className="text-lg"> ❗ Error </p>
             <br />
-            <p> {message} Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation.Your explanation may have changed since you last computed this question. Please compute again with your new explanation. </p>
+            <p> {message} </p>
           </div>
         }
       </div>
