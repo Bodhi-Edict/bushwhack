@@ -64,25 +64,4 @@ export const testRouter = createTRPCRouter({
       });
       return testAttempt;
   }),
-
-  //TO DO CREATE THIS API
-  createExplanation: protectedProcedure
-    .input(z.object({
-      testAttemptId: z.string({
-        required_error: "Id is required"
-      }),
-      questionId: z.string({
-        required_error: "Id is required"
-      }),
-      explanation: z.string({
-        required_error: "Id is required"
-      }),
-    }))
-    .mutation(async ({ ctx, input }):Promise<void> => {
-      const testAttemptId = input.testAttemptId;
-      if(ctx.session?.user === undefined) {
-        throw new Error("User not found");
-      }   
-  })
-
 });

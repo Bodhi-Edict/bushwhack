@@ -51,7 +51,6 @@ enum Role {
 model Test {
   name          String
   instructions  String
-  AIPrompt      String?
   imageUrl      String
   maxTimeInMins Int?
   maxLength     Int?
@@ -72,7 +71,7 @@ model Question {
   test          Test?     @relation(fields: [testId], references: [id])
   correctValues String[]
   title         String
-  AIPrompt      String?
+  assistantId   String?
   testId        String?
   id            String    @id @default(cuid())
   createdAt     DateTime  @default(now())
@@ -109,6 +108,7 @@ model TestAttempt {
 }
 
 model Explanation {
+  text          String
   user          User        @relation(fields: [userId], references: [id])
   testAttempt   TestAttempt @relation(fields: [testAttemptId], references: [id])
   test          Test        @relation(fields: [testId], references: [id])
@@ -126,11 +126,10 @@ model Answer {
   explanation     Explanation @relation(fields: [explanationId], references: [id])
   question        Question    @relation(fields: [questionId], references: [id])
   isCorrect       Boolean
-  computedAnswer  String
+  computedAnswer  String?
   computedWorking String
   explanationId   String
   questionId      String
-  value           String
   id              String      @id @default(cuid())
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt

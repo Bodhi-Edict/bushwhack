@@ -1,4 +1,5 @@
 import { type Decimal } from "@prisma/client/runtime/library";
+import { type QuestionTruncated } from "./questionTypes";
 
 export type SubjectsPage = {
   name: string,
@@ -29,9 +30,17 @@ export type TestPage = {
   imageUrl: string,
   maxTimeInMins: number | null,
   maxLength: number | null,
-  questions: {
-    correctValues: string[],
-    title: string,
-    id: string,
-  }[]
+  questions: QuestionTruncated[]
+};
+
+export type CheckAnswer = {
+  error: false,
+  id: string,
+  working: string,
+  isCorrect: boolean,
+};
+
+export type CheckAnswerError = {
+  error: true,
+  message: string
 };

@@ -11,7 +11,7 @@ export const Navbar: React.FC = async () => {
     return (
       <div className="h-12 px-2.5 py-2 flex justify-between items-center absolute w-full border-b border-slate-100">
         <Link href="/">
-          <Image src="/logo.png" alt="Logo" height={32} width={40} />
+          <Image priority src="/logo.png" alt="Logo" height={32} width={40} />
         </Link>
         <div className="dropdown ">
           {session?.user && (
