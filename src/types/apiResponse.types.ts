@@ -44,3 +44,9 @@ export type CheckAnswerError = {
   error: true,
   message: string
 };
+
+export type SubmitTest = {
+  error: false,
+  answers: (CheckAnswer | CheckAnswerError)[],
+  progress: number,
+};

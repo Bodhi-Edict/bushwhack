@@ -9,27 +9,31 @@ import { QuestionCard } from './question-card';
 import { formatTimeSince } from '~/utils/formatTimeSince';
 import { QuestionStatus } from '~/types/questionTypes';
 import { CarouselSideNav } from './carousel-side-nav';
+import { ProgressBar } from '~/app/_components/progress-bar';
 
 export function TestAttempt(test: TestPage) {
   const [modalOpen, setModalOpen] = useState(true);
   const [explanation, setExplanation] = useState('');
   const [disableNavigation, setDisableNavigation] = useState(false);
+  const [testSubmit, setTestSubmit] = useState(false);
 
   const [testStartTime, setTestStartTime] = useState<Date | null>(null);
   const [time, setTime] = useState(0);
   // This effect updates the time every second
   useEffect(() => {
     let intervalId: string | number | NodeJS.Timeout | undefined;
-    if (testStartTime) {
+    if (testStartTime && !testSubmit) {
       intervalId = setInterval(() => setTime(time + 1000), 1000);
     }
     return () => clearInterval(intervalId);
-  }, [testStartTime, time]);
+  }, [testStartTime, time, testSubmit]);
 
   const [testAttemptId, setTestAttemptId] = useState<string | null>(null);
 
   const [questionStatus, setQuestionStatus] = useState<QuestionStatus[]>(new Array(test.questions.length).fill(QuestionStatus.UNATTEMPTED));
   const [questionWorkings, setQuestionWorkings] = useState<string[]>(new Array(test.questions.length).fill(''));
+
+  const numberCorrect = questionStatus.filter(status => status == QuestionStatus.CORRECT).length;
 
   // When the modal is closed the test begins
   // This API call creates a test attempt object
@@ -58,7 +62,6 @@ export function TestAttempt(test: TestPage) {
 
   const checkQuestionMutation = api.answer.checkQuestion.useMutation({
     onSuccess: (response) => {
-      console.log(response);
       const newQuestionStatus = questionStatus.map((status, index) => {
         if (index == currentQuestionIndex) {
           if (response.error) return QuestionStatus.ERROR;
@@ -79,13 +82,7 @@ export function TestAttempt(test: TestPage) {
     }
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if(!testAttemptId) return;
-    if(!test.questions[currentQuestionIndex]) return;
-    const question = test.questions[currentQuestionIndex]!;
-    
-    setDisableNavigation(true);
+  const checkAnswer = (testAttemptId: string, questionId: string) => {
     const newQuestionStatus = questionStatus.map((status, index) => {
       if (index == currentQuestionIndex) {
         return QuestionStatus.LOADING;
@@ -104,9 +101,28 @@ export function TestAttempt(test: TestPage) {
     setQuestionWorkings(newQuestionWorkings);
     checkQuestionMutation.mutate({
       testAttemptId: testAttemptId,
-      questionId: question.id,
+      questionId: questionId,
       explanationText: explanation,
     });
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if(!testAttemptId) return;
+    if(!test.questions[currentQuestionIndex]) return;
+    const question = test.questions[currentQuestionIndex]!;
+    checkAnswer(testAttemptId, question.id);
+    setDisableNavigation(true);
+  }
+
+  const handleSubmitTest = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if(!testAttemptId) return;
+    setDisableNavigation(true);
+    setTestSubmit(true);
+    for (const question  of test.questions) {
+      checkAnswer(testAttemptId, question.id);
+    }
   }
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -119,9 +135,17 @@ export function TestAttempt(test: TestPage) {
       <div className="flex p-4 w-full">
         <div className="flex flex-row items-center justify-between gap-4 shadow-md bg-white w-full p-4 rounded-md">
           <span className="text-lg"> {test.name} </span>
-          <div className="flex gap-4 flex-row items-center">
+          <div className="flex flex-row gap-6 items-center">
+            <span className="flex flex-row gap-2 items-center">
+              Progress: 
+              <span className="min-w-48">
+                <ProgressBar progress={numberCorrect / test.questions.length} />
+              </span>
+            </span>
             <span className="text-slate-400"> {testStartTime && formatTimeSince(time)} </span>
-            <PrimaryButton> Submit Test</PrimaryButton>
+            <form onSubmit={handleSubmitTest}>
+              <PrimaryButton disabled={testSubmit} type='submit'> Submit Test</PrimaryButton>
+            </form>
           </div>
         </div>
       </div>
@@ -162,7 +186,7 @@ export function TestAttempt(test: TestPage) {
           className="h-full w-full outline outline-slate-200 p-4 mb-2 rounded-md resize-none focus-visible:outline-slate-200 "
           placeholder="Type your explanation here"
           value={explanation}
-          disabled={disableNavigation}
+          disabled={disableNavigation || testSubmit}
           onChange={handleFormChange} 
           maxLength={test.maxLength ? test.maxLength : undefined}/>
         <div className="px-2 flex justify-between items-center w-full">
@@ -170,7 +194,7 @@ export function TestAttempt(test: TestPage) {
             {explanation.length} {test.maxLength ? `/ ${test.maxLength}` : ''} characters
           </p>
           <div className="flex flex-row gap-2">
-            <PrimaryButton>Compute</PrimaryButton>
+            <PrimaryButton disabled={testSubmit} >Compute</PrimaryButton>
             <Tooltip message="Unfortunately it costs a lot of money to compute all questions every time you make a change. Reach out to us at vig9295@gmail.com if you need this feature.">
               <PrimaryButton disabled>Compute All</PrimaryButton>
             </Tooltip>

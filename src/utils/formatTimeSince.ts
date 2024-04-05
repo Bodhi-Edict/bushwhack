@@ -1,6 +1,6 @@
 export const formatTimeSince = (time: number) => {
-  const hours = Math.floor(time / 360000);
-  const minutes = Math.floor(time / 60000); 
+  const hours = Math.floor(time / 3600000);
+  const minutes = Math.floor((time % 360000) / 60000); 
   const seconds = Math.floor((time % 60000) / 1000); 
   
   // Format the minutes and seconds with leading zeros if needed
@@ -8,5 +8,5 @@ export const formatTimeSince = (time: number) => {
   const formattedMinutes = minutes.toString().padStart(2, '0');
   const formattedSeconds = seconds.toString().padStart(2, '0');
   
-  return `${hours > 0 ? formattedHours: ''}${formattedMinutes}:${formattedSeconds}`;
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
