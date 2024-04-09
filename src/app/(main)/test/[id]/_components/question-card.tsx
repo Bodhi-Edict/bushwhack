@@ -1,4 +1,5 @@
 'use client';
+import { Tooltip } from "~/app/_components/tooltip";
 import { QuestionStatus } from "~/types/questionTypes";
 
 interface IProps  {
@@ -42,9 +43,13 @@ export function QuestionCard({ title, number, status, message }: IProps) {
         {
           status === QuestionStatus.NEED_TO_CHECK &&
           <div>
-            <p className="text-lg"> ✋🏾 Need to check </p>
+            <Tooltip 
+              message="Your explanation may have changed since you last submitted"
+              width="100%">
+              <p> ✋🏾 Need to check </p>
+            </Tooltip>
             <br />
-            <p> Your explanation may have changed since you last computed this question. Please compute again with your new explanation. </p>
+            <p className="overflow-y-scroll max-h-calc[75%-96px]"> {message} </p>
           </div>
         }
         {

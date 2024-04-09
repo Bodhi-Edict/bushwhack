@@ -18,9 +18,9 @@ export default async function Test({ params }: { params: { id: string } }) {
           <p className="text-slate-500 mb-4">
             Instructions
           </p>
-          <p className="text-xs text-justify text-slate-500">
-            {test.instructions}
-          </p>
+          <p className="text-xs text-justify text-slate-500"
+            dangerouslySetInnerHTML={{ __html: test.instructions }}
+          />  
         </div>
       </div>
     </main>

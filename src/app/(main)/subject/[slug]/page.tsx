@@ -51,34 +51,6 @@ export default async function Subject({ params }: { params: { slug: string } }) 
                 </div>
               ))
             }
-            {
-              subject.tests?.map((test) => (
-              <div key={test.id} className="grid grid-rows gap-4 mb-2 border p-4 rounded-md">
-                <Image
-                  src="https://bushwhack-ira-project.s3.ap-south-1.amazonaws.com/math-tests/Arithmetic+Progression.webp"
-                  alt={test.name}
-                  width={0}
-                  height={0}
-                  sizes="100vw"
-                  className="rounded-md mx-auto mb-4 text-center w-full h-auto" />
-                <p className="text-2xl">
-                  Arithmetic Progression
-                </p>
-                {Number(50) > 0 && <ProgressBar progress={Number(0.5)}/>}
-                <div className="flex justify-between items-center">
-                  <span className="text-xs my-auto text-slate-600 ">
-                      60 MINS
-                  </span>
-                  <Link
-                    href={`/test/${test.id}`}>
-                      <PrimaryButton>
-                        {Number(50) > 0 ? "Try Again" : "Start Test"}
-                      </PrimaryButton>
-                  </Link>
-                </div>
-              </div>
-              ))
-            }
           </div>
         </div>
       </div>

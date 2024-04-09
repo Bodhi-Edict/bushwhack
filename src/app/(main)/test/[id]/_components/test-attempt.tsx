@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { TestInstructionsModal } from './test-instructions-modal';
 import { type TestPage } from '~/types/apiResponse.types';
 import { PrimaryButton } from '~/app/_components/primary-button';
@@ -10,15 +10,41 @@ import { formatTimeSince } from '~/utils/formatTimeSince';
 import { QuestionStatus } from '~/types/questionTypes';
 import { CarouselSideNav } from './carousel-side-nav';
 import { ProgressBar } from '~/app/_components/progress-bar';
+import { TestSubmissionModal } from './test-submission-modal';
+import { ActionType, testAttemptReducer } from './test-attempt_reducer';
+import { useRouter } from 'next/navigation';
 
 export function TestAttempt(test: TestPage) {
+  const router = useRouter();
+  
+  // This state is used to prevent users from submitting the test without attempting even one question
+  const [computeOnce, setComputeOnce] = useState(false)
+
+  // The modal states control the visibility of the instructions and submission modals
   const [modalOpen, setModalOpen] = useState(true);
+  const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
+
+  // Explanation controls the text in the explanation textarea
   const [explanation, setExplanation] = useState('');
+
+  // This state is used to control the navigation of the questions
+  // The navigation is disabled when a question is computing
   const [disableNavigation, setDisableNavigation] = useState(false);
+
+  // This state is used to control the submission of the test
+  // When the test is submitted the user can only view the results but not act
   const [testSubmit, setTestSubmit] = useState(false);
 
+  // This state is used to keep track of the time since the test started
   const [testStartTime, setTestStartTime] = useState<Date | null>(null);
   const [time, setTime] = useState(0);
+
+  // This state is used to keep track of the test attempt id
+  const [testAttemptId, setTestAttemptId] = useState<string | null>(null);
+
+  // This state is used to keep track of the current question index
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
   // This effect updates the time every second
   useEffect(() => {
     let intervalId: string | number | NodeJS.Timeout | undefined;
@@ -28,12 +54,18 @@ export function TestAttempt(test: TestPage) {
     return () => clearInterval(intervalId);
   }, [testStartTime, time, testSubmit]);
 
-  const [testAttemptId, setTestAttemptId] = useState<string | null>(null);
+  // This state is used to keep track of the status of the questions
+  // It is managed by a reducer
+  const [testAttemptState, testAttemptStateDispatch] = useReducer(
+    testAttemptReducer, 
+    test.questions.map((question) => ({
+      id: question.id,
+      status: QuestionStatus.UNATTEMPTED,
+      working: '',
+    }))
+  );
 
-  const [questionStatus, setQuestionStatus] = useState<QuestionStatus[]>(new Array(test.questions.length).fill(QuestionStatus.UNATTEMPTED));
-  const [questionWorkings, setQuestionWorkings] = useState<string[]>(new Array(test.questions.length).fill(''));
-
-  const numberCorrect = questionStatus.filter(status => status == QuestionStatus.CORRECT).length;
+  const numberCorrect = testAttemptState.filter(question => question.status == QuestionStatus.CORRECT).length;
 
   // When the modal is closed the test begins
   // This API call creates a test attempt object
@@ -45,91 +77,127 @@ export function TestAttempt(test: TestPage) {
     }
   });
 
+  // Call the test attempt mutation when start test button is clicked
   const startTest = () => {
     testAttemptMutation.mutate({ testId: test.id });
   }
 
+  // This function is called when the explanation textarea is changed
+  // It ensures that the question status is set to NEED_TO_CHECK and users know to test those questions again.
   const handleFormChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newQuestionStatus = questionStatus.map((status, index) => {
-      if (status == QuestionStatus.CORRECT || status == QuestionStatus.INCORRECT) {
-        if (index != currentQuestionIndex) return QuestionStatus.NEED_TO_CHECK;
+    const newExplanation = e.target.value;
+    for (const question of testAttemptState) {
+      if (question.status == QuestionStatus.CORRECT || question.status == QuestionStatus.INCORRECT || question.status == QuestionStatus.ERROR) {
+        testAttemptStateDispatch({
+          type: ActionType.UpdateQuestion,
+          payload: {
+            questionId: question.id,
+            newStatus: QuestionStatus.NEED_TO_CHECK,
+            working: question.working,
+          }
+        });
       }
-      return status;
-    });
-    setQuestionStatus(newQuestionStatus);
-    setExplanation(e.target.value);
+    };
+    setExplanation(newExplanation);
   }
 
+  // This function calls the check Question API and updates the question status and workings
   const checkQuestionMutation = api.answer.checkQuestion.useMutation({
     onSuccess: (response) => {
-      const newQuestionStatus = questionStatus.map((status, index) => {
-        if (index == currentQuestionIndex) {
-          if (response.error) return QuestionStatus.ERROR;
-          return response.isCorrect ? QuestionStatus.CORRECT : QuestionStatus.INCORRECT;
+      testAttemptStateDispatch({
+        type: ActionType.UpdateQuestion,
+        payload: {
+          questionId: response.questionId,
+          newStatus: response.error ? QuestionStatus.ERROR : response.isCorrect ? QuestionStatus.CORRECT : QuestionStatus.INCORRECT,
+          working: response.error ? response.message : response.working,
         }
-        return status;
       });
-      const newQuestionWorkings = questionWorkings.map((explanation, index) => {
-        if (index == currentQuestionIndex) {
-          if (response.error) return response.message;
-          return response.working;
-        }
-        return explanation;
-      });
-      setQuestionStatus(newQuestionStatus);
-      setQuestionWorkings(newQuestionWorkings);
+      setComputeOnce(true);
       setDisableNavigation(false);
     }
   });
 
-  const checkAnswer = (testAttemptId: string, questionId: string) => {
-    const newQuestionStatus = questionStatus.map((status, index) => {
-      if (index == currentQuestionIndex) {
-        return QuestionStatus.LOADING;
-      }
-      return status;
-    });
-
-    const newQuestionWorkings = questionWorkings.map((working, index) => {
-      if (index == currentQuestionIndex) {
-        return '';
-      }
-      return working;
-    });
-
-    setQuestionStatus(newQuestionStatus);
-    setQuestionWorkings(newQuestionWorkings);
-    checkQuestionMutation.mutate({
-      testAttemptId: testAttemptId,
-      questionId: questionId,
-      explanationText: explanation,
-    });
-  }
-
+  // This function handles the submission of a single question
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if(!testAttemptId) return;
     if(!test.questions[currentQuestionIndex]) return;
     const question = test.questions[currentQuestionIndex]!;
-    checkAnswer(testAttemptId, question.id);
+
+    testAttemptStateDispatch({
+      type: ActionType.UpdateQuestion,
+      payload: {
+        questionId: question.id,
+        newStatus: QuestionStatus.LOADING,
+        working: '',
+      }
+    })
+
+    checkQuestionMutation.mutate({
+      testAttemptId: testAttemptId,
+      questionId: question.id,
+      explanationText: explanation,
+    });
     setDisableNavigation(true);
   }
 
-  const handleSubmitTest = (e: React.FormEvent<HTMLFormElement>) => {
+  // This function calls the submit test API and opens the submission modal
+  const submitTestMutation = api.answer.submitTest.useMutation({
+    onSuccess: () => {
+      setSubmissionModalOpen(true);
+    }
+  });
+
+  // This function handles the submission of the entire test
+  const handleSubmitTest = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if(!testAttemptId) return;
     setDisableNavigation(true);
     setTestSubmit(true);
-    for (const question  of test.questions) {
-      checkAnswer(testAttemptId, question.id);
+    const promises = []
+    for (const question of testAttemptState) {
+      if (question.status == QuestionStatus.CORRECT || question.status == QuestionStatus.INCORRECT) continue;
+      testAttemptStateDispatch({
+        type: ActionType.UpdateQuestion,
+        payload: {
+          questionId: question.id,
+          newStatus: QuestionStatus.LOADING,
+          working: '',
+        }
+      })
+      promises.push(await checkQuestionMutation.mutateAsync({
+        testAttemptId: testAttemptId,
+        questionId: question.id,
+        explanationText: explanation,
+      }));
     }
+
+    void Promise.all(promises).then(() => {
+      submitTestMutation.mutate({
+        testAttemptId: testAttemptId,
+        explanationText: explanation,
+        numberCorrect: numberCorrect,
+      });
+    });
   }
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  // This function exits the test
+  const exitTest = () => {
+    router.back();
+  }
+
 
   return (
     <>
+      {/* Modals */}
       {modalOpen && <TestInstructionsModal {...test} numberOfQuestions={test.questions.length} close={startTest}/>}
+      {submissionModalOpen && 
+        <TestSubmissionModal
+          explanation={explanation}
+          imageUrl={test.imageUrl}
+          testName={test.name}
+          progress={numberCorrect / test.questions.length}
+          close={() => setSubmissionModalOpen(false)}/>}
 
       {/* Test Header */}
       <div className="flex p-4 w-full">
@@ -143,9 +211,22 @@ export function TestAttempt(test: TestPage) {
               </span>
             </span>
             <span className="text-slate-400"> {testStartTime && formatTimeSince(time)} </span>
-            <form onSubmit={handleSubmitTest}>
-              <PrimaryButton disabled={testSubmit} type='submit'> Submit Test</PrimaryButton>
-            </form>
+            {
+              testSubmit
+              ?
+              <PrimaryButton onClick={exitTest}> Exit Test</PrimaryButton>
+              :
+              <form onSubmit={handleSubmitTest}>
+                <Tooltip 
+                  width="250%"
+                  message={
+                  computeOnce 
+                  ? "Remember once you submit you can't go back and change your answers."
+                  : "You must compute at least once before submitting your test."}>
+                  <PrimaryButton disabled={!computeOnce} type='submit'> Submit Test</PrimaryButton>
+                </Tooltip>
+              </form>
+            }
           </div>
         </div>
       </div>
@@ -162,7 +243,7 @@ export function TestAttempt(test: TestPage) {
                 isActive={currentQuestionIndex===index}
                 id={question.id}
                 title={question.title}
-                status={questionStatus[index]}
+                status={testAttemptState[index]?.status}
                 key={question.id}
               />
             ))}
@@ -173,8 +254,8 @@ export function TestAttempt(test: TestPage) {
             <QuestionCard 
               title={test.questions[currentQuestionIndex]?.title} 
               number={currentQuestionIndex + 1} 
-              status={questionStatus[currentQuestionIndex]}
-              message={questionWorkings[currentQuestionIndex]} />
+              status={testAttemptState[currentQuestionIndex]?.status}
+              message={testAttemptState[currentQuestionIndex]?.working} />
           <button disabled={currentQuestionIndex===test.questions.length - 1 || disableNavigation} className="text-2xl text-slate-500 font-medium m-4" onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>{">"}</button>
         </div>
       </div>

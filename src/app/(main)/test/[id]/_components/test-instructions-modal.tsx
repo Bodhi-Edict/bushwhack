@@ -30,9 +30,9 @@ export function TestInstructionsModal({ name, instructions, maxTimeInMins, image
         <p className="text-md">
           {numberOfQuestions} QUESTIONS
         </p>
-        <p>
-          {instructions}
-        </p>
+        <p className="text-justify max-h-[160px] overflow-y-auto"
+         dangerouslySetInnerHTML={{ __html: instructions }} />
+        <hr />
         <div className="flex justify-between items-center">
           <span className="text-xs my-auto text-slate-600 ">
               {maxTimeInMins ? `${maxTimeInMins} MINS` : "NO TIME LIMIT"}

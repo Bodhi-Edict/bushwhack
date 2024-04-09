@@ -38,15 +38,17 @@ export type CheckAnswer = {
   id: string,
   working: string,
   isCorrect: boolean,
+  questionId: string,
 };
 
 export type CheckAnswerError = {
   error: true,
-  message: string
+  message: string,
+  questionId: string
 };
 
 export type SubmitTest = {
-  error: false,
-  answers: (CheckAnswer | CheckAnswerError)[],
-  progress: number,
+  id: string,
+  progress: Decimal, 
+  endTime: Date
 };
