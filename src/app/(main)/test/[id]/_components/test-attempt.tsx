@@ -114,6 +114,11 @@ export function TestAttempt(test: TestPage) {
       });
       setComputeOnce(true);
       setDisableNavigation(false);
+    },
+    onError: (error) => {
+      setDisableNavigation(false);
+      console.log(error);
+      alert(error.message)
     }
   });
 
@@ -144,7 +149,6 @@ export function TestAttempt(test: TestPage) {
   // This function calls the submit test API and opens the submission modal
   const submitTestMutation = api.answer.submitTest.useMutation({
     onSuccess: () => {
-      console.log("YOOOO SUBMIT TEST DONE")
       setSubmissionModalOpen(true);
     }
   });

@@ -1,3 +1,4 @@
+import { TRPCClientError } from "@trpc/client";
 import { OpenAI } from "openai";
 
 type OpenAIResponse = {
@@ -159,7 +160,7 @@ export async function compute(prompt: string, assistantId: string, calculatorAss
         correctAnswers, 
       )
     } else {
-      throw new Error("Something went wront. The AI could not compute your answer. Please try again");
+      throw new Error("Something went wrong. The AI could not compute your answer. Please try again");
     }
   } 
 
@@ -182,7 +183,6 @@ export async function compute(prompt: string, assistantId: string, calculatorAss
         )
         return getMessage(responseJson.response, correctAnswers, answer)
       } catch {
-        console.log("BROOO: ", response)
         throw new Error('Something went wrong. The AI returned a response with an incorrect format. Please try again.')
       }
     }
