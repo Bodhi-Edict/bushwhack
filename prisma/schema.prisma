@@ -68,16 +68,17 @@ model Test {
 }
 
 model Question {
-  test          Test?     @relation(fields: [testId], references: [id])
-  correctValues String[]
-  title         String
-  assistantId   String?
-  testId        String?
-  id            String    @id @default(cuid())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
-  answers       Answer[]
+  test                 Test?     @relation(fields: [testId], references: [id])
+  correctValues        String[]
+  title                String
+  assistantId          String?
+  calculateAssistantId String?
+  testId               String?
+  id                   String    @id @default(cuid())
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+  answers              Answer[]
 }
 
 model Subject {

@@ -144,6 +144,7 @@ export function TestAttempt(test: TestPage) {
   // This function calls the submit test API and opens the submission modal
   const submitTestMutation = api.answer.submitTest.useMutation({
     onSuccess: () => {
+      console.log("YOOOO SUBMIT TEST DONE")
       setSubmissionModalOpen(true);
     }
   });
@@ -165,7 +166,7 @@ export function TestAttempt(test: TestPage) {
           working: '',
         }
       })
-      promises.push(await checkQuestionMutation.mutateAsync({
+      promises.push(checkQuestionMutation.mutateAsync({
         testAttemptId: testAttemptId,
         questionId: question.id,
         explanationText: explanation,

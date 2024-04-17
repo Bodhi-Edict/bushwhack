@@ -3,7 +3,7 @@ import {
   createTRPCRouter,
   protectedProcedure
 } from "~/server/api/trpc";
-import { computeAnswer } from "~/server/services/openai";
+import { compute } from "~/server/services/openai";
 import { type CheckAnswerError, type CheckAnswer, type SubmitTest } from "~/types/apiResponse.types";
 
 export const answerRouter = createTRPCRouter({
@@ -59,7 +59,7 @@ export const answerRouter = createTRPCRouter({
       });
 
       // If no question is found return an error
-      if(!question?.assistantId || question?.assistantId === null) {
+      if(!question?.assistantId || !question?.calculateAssistantId) {
         return {
           error: true,
           message: "Question not found",
@@ -75,7 +75,6 @@ export const answerRouter = createTRPCRouter({
         }
       });
       if(explanation !== null && explanation !== undefined) {
-
         // If an existing explanation exists it's highly likely that an OPenAI call has already been made
         // We get the associated answer even if it's not from the same user
         const answer = await ctx.db.answer.findFirst({
@@ -135,10 +134,11 @@ export const answerRouter = createTRPCRouter({
       }
       let aiResponse;
       try {
-        aiResponse = await computeAnswer(
+        aiResponse = await compute(
+          explanationText,
           question.assistantId,
-          "",
-          explanationText
+          question.calculateAssistantId,
+          question.correctValues
         )
       } catch (e) {
         let errorMessage = "";
