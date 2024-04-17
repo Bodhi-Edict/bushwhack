@@ -150,6 +150,12 @@ export function TestAttempt(test: TestPage) {
   const submitTestMutation = api.answer.submitTest.useMutation({
     onSuccess: () => {
       setSubmissionModalOpen(true);
+    }, 
+    onError: (error) => {
+      console.log(error);
+      setDisableNavigation(false);
+      setTestSubmit(false);
+      alert("Something went wrong! Please try again.")
     }
   });
 
@@ -219,7 +225,7 @@ export function TestAttempt(test: TestPage) {
             {
               testSubmit
               ?
-              <PrimaryButton onClick={exitTest}> Exit Test</PrimaryButton>
+              <PrimaryButton onClick={exitTest} disabled={disableNavigation}> Exit Test</PrimaryButton>
               :
               <form onSubmit={handleSubmitTest}>
                 <Tooltip 

@@ -5,6 +5,8 @@ import {
 } from "~/server/api/trpc";
 import { compute } from "~/server/services/openai";
 import { type CheckAnswerError, type CheckAnswer, type SubmitTest } from "~/types/apiResponse.types";
+import { OpenAIResponseError } from "~/types/openAITypes";
+
 
 export const answerRouter = createTRPCRouter({
 
@@ -132,28 +134,19 @@ export const answerRouter = createTRPCRouter({
           }
         });
       }
-      let aiResponse;
-      try {
-        aiResponse = await compute(
-          explanationText,
-          question.assistantId,
-          question.calculateAssistantId,
-          question.correctValues
-        )
-      } catch (e) {
-        let errorMessage = "";
-        if (typeof e === "string") {
-          errorMessage = e
-        } else if (e instanceof Error) {
-          errorMessage = e.message
-        }
+      const aiResponse = await compute(
+        explanationText,
+        question.assistantId,
+        question.calculateAssistantId,
+        question.correctValues
+      )
+      if(aiResponse.error) {
         return {
           error: true,
-          message: "Failed to compute answer. " + errorMessage,
+          message: "Failed to compute answer. " + aiResponse.message,
           questionId: questionId
         }
       }
-
       const answer = await ctx.db.answer.create({
         data: {
           questionId: questionId,
@@ -261,7 +254,6 @@ export const answerRouter = createTRPCRouter({
         progress: updatedTestAttempt.progress,
         endTime: updatedTestAttempt.endTime ?? new Date()
       };
-    
     })
 
 });
