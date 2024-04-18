@@ -5,8 +5,6 @@ import {
 } from "~/server/api/trpc";
 import { compute } from "~/server/services/openai";
 import { type CheckAnswerError, type CheckAnswer, type SubmitTest } from "~/types/apiResponse.types";
-import { OpenAIResponseError } from "~/types/openAITypes";
-
 
 export const answerRouter = createTRPCRouter({
 
