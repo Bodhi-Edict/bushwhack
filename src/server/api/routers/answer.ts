@@ -21,7 +21,6 @@ export const answerRouter = createTRPCRouter({
       }),
     }))
     .mutation(async ({ ctx, input }):Promise<CheckAnswer | CheckAnswerError> => {
-      await new Promise(resolve => setTimeout(resolve, 20000)); // Wait for 10 seconds
       const testAttemptId = input.testAttemptId;
       const questionId = input.questionId;
       const explanationText = input.explanationText;
