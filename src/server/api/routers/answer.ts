@@ -1,10 +1,11 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure
 } from "~/server/api/trpc";
 import { compute } from "~/server/services/openai";
-import { type CheckAnswerError, type CheckAnswer, type SubmitTest } from "~/types/apiResponse.types";
+import { type CheckAnswer, type SubmitTest } from "~/types/apiResponse.types";
 
 export const answerRouter = createTRPCRouter({
 
@@ -20,18 +21,17 @@ export const answerRouter = createTRPCRouter({
         required_error: "Explanation is required"
       }),
     }))
-    .mutation(async ({ ctx, input }):Promise<CheckAnswer | CheckAnswerError> => {
+    .mutation(async ({ ctx, input }):Promise<CheckAnswer> => {
       const testAttemptId = input.testAttemptId;
       const questionId = input.questionId;
       const explanationText = input.explanationText;
 
       // If no user is found return an error
       if(ctx.session?.user === undefined) {
-        return {
-          error: true,
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
           message: "User not found. Please refresh the page and login again.",
-          questionId: questionId
-        }
+        })
       }
 
       const testAttempt = await ctx.db.testAttempt.findUnique({
@@ -45,11 +45,10 @@ export const answerRouter = createTRPCRouter({
 
       // If no test attempt is found return an error
       if(!testAttempt) {
-        return {
-          error: true,
-          message: "Test attempt not found",
-          questionId: questionId
-        }
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Test attempt not found. Please refresh the page and try again.",
+        })
       }
 
       const question = await ctx.db.question.findUnique({
@@ -60,11 +59,10 @@ export const answerRouter = createTRPCRouter({
 
       // If no question is found return an error
       if(!question?.assistantId || !question?.calculateAssistantId) {
-        return {
-          error: true,
-          message: "Question not found",
-          questionId: questionId
-        }
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Question not found. Please try again.",
+        })
       }
 
       // Check if the explanation already exists
@@ -138,13 +136,6 @@ export const answerRouter = createTRPCRouter({
         question.calculateAssistantId,
         question.correctValues
       )
-      if(aiResponse.error) {
-        return {
-          error: true,
-          message: "Failed to compute answer. " + aiResponse.message,
-          questionId: questionId
-        }
-      }
       const answer = await ctx.db.answer.create({
         data: {
           questionId: questionId,
@@ -203,7 +194,10 @@ export const answerRouter = createTRPCRouter({
 
       // If no test attempt is not found return an error
       if(!testAttempt) {
-        throw new Error("Test attempt not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Test attempt not found"
+        });
       }
 
       const explanation = await ctx.db.explanation.findFirst({
@@ -214,7 +208,10 @@ export const answerRouter = createTRPCRouter({
       });
       
       if(explanation === null || explanation === undefined) {
-        throw new Error("Explanation not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Explanation not found"
+        });
       }
 
       let isCorrect = 0;
@@ -233,7 +230,10 @@ export const answerRouter = createTRPCRouter({
       }
 
       if (isCorrect !== input.numberCorrect) {
-        throw new Error("Number of correct answers does not match");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "There is a mismatch in the number of correct answers."
+        });
       }
 
       const progress = isCorrect / testAttempt.test.questions.length;

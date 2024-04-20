@@ -108,8 +108,8 @@ export function TestAttempt(test: TestPage) {
         type: ActionType.UpdateQuestion,
         payload: {
           questionId: response.questionId,
-          newStatus: response.error ? QuestionStatus.ERROR : response.isCorrect ? QuestionStatus.CORRECT : QuestionStatus.INCORRECT,
-          working: response.error ? response.message : response.working,
+          newStatus: response.isCorrect ? QuestionStatus.CORRECT : QuestionStatus.INCORRECT,
+          working: response.working,
         }
       });
       setComputeOnce(true);
@@ -157,8 +157,7 @@ export function TestAttempt(test: TestPage) {
     onSuccess: () => {
       setSubmissionModalOpen(true);
     }, 
-    onError: (error) => {
-      console.log(error);
+    onError: () => {
       setDisableNavigation(false);
       setTestSubmit(false);
       alert("Something went wrong! Please try again.")
