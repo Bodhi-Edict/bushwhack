@@ -14,11 +14,5 @@ export const appRouter = createTRPCRouter({
   answer: answerRouter,
 });
 
-export const config = {
-  maxDuration: 60,
-};
-
-export const maxDuration = 60
-
 // export type definition of API
 export type AppRouter = typeof appRouter;

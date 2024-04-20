@@ -99,9 +99,3 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   });
 });
-
-export const config = {
-  maxDuration: 60,
-};
-
-export const maxDuration = 60

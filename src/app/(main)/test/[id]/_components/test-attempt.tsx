@@ -115,10 +115,16 @@ export function TestAttempt(test: TestPage) {
       setComputeOnce(true);
       setDisableNavigation(false);
     },
-    onError: (error) => {
+    onError: (error, input) => {
       setDisableNavigation(false);
-      console.log(error);
-      alert(error.message)
+      testAttemptStateDispatch({
+        type: ActionType.UpdateQuestion,
+        payload: {
+          questionId: input.questionId,
+          newStatus: QuestionStatus.ERROR,
+          working: error.message,
+        }
+      })
     }
   });
 
