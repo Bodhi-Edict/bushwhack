@@ -1,5 +1,5 @@
 import { type Decimal } from "@prisma/client/runtime/library";
-import { type QuestionTruncated } from "./questionTypes";
+import { type QuestionTruncated } from "./question.types";
 
 export type SubjectsPage = {
   name: string,

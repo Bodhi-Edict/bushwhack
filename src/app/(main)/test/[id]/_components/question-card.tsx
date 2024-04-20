@@ -1,6 +1,6 @@
 'use client';
 import { Tooltip } from "~/app/_components/tooltip";
-import { QuestionStatus } from "~/types/questionTypes";
+import { QuestionStatus } from "~/types/question.types";
 
 interface IProps  {
   title?: string,

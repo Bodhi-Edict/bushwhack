@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { OpenAI } from "openai";
-import { type OpenAIResponse } from "~/types/openAITypes";
+import { type OpenAIResponse } from "~/types/openAI.types";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

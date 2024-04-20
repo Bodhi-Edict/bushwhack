@@ -1,6 +1,6 @@
 'use client';
 
-import { QuestionStatus } from "~/types/questionTypes";
+import { QuestionStatus } from "~/types/question.types";
 
 interface IProps  {
   disabled?: boolean,

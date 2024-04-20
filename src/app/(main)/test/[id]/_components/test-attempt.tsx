@@ -7,7 +7,7 @@ import { Tooltip } from '~/app/_components/tooltip';
 import { api } from '~/trpc/react';
 import { QuestionCard } from './question-card';
 import { formatTimeSince } from '~/utils/formatTimeSince';
-import { QuestionStatus } from '~/types/questionTypes';
+import { QuestionStatus } from '~/types/question.types';
 import { CarouselSideNav } from './carousel-side-nav';
 import { ProgressBar } from '~/app/_components/progress-bar';
 import { TestSubmissionModal } from './test-submission-modal';

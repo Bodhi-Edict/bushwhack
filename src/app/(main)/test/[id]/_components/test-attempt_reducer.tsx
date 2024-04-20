@@ -1,4 +1,4 @@
-import { type QuestionStatus } from "~/types/questionTypes";
+import { type QuestionStatus } from "~/types/question.types";
 
 type QuestionState = {
   id: string
