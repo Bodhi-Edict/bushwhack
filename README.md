@@ -20,10 +20,6 @@ Feel free to use this codebase any which way you like. However, this codebase ma
 
 This repository only caontains our consumer facing web application. Currently we're using the OpenAPI and are working towards fine tuning models and assistants to help build the AI buddy. You can find a detailed description of the experiments and approaches we're taking along with the current roadmap. [here](https://github.com/Bodhi-Edict/lastword).
 
-## Things to Improve
-
-- Set up Suspense and fall back loading UI for all the server calls so time to first paint is not too slow
-
 ## Contact
 
 To learn more please contact vig9295@gmail.com.

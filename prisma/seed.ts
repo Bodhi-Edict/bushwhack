@@ -5,6 +5,7 @@ const prisma = new PrismaClient()
 async function main() {
   // await createSubjects();
   // await createProbabilityTest();
+  // await printExplanations();
 }
 
 async function createSubjects() {
@@ -68,6 +69,15 @@ async function createProbabilityTest() {
     ]
   })
 
+}
+
+async function printExplanations() {
+  const explanations = await prisma.explanation.findMany({
+  });
+
+  for (const explanation of explanations) {
+    console.log(explanation.text);
+  }
 }
 
 main()
